@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Timeline to KML Converter</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      margin: 20px;
+      background-color: #f4f7f6;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 700px;
+      margin: 30px auto;
+    }
+
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #34495e;
+    }
+
+    input[type="file"],
+    input[type="date"] {
+      display: block;
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: calc(100% - 22px);
+      /* Account for padding and border */
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #status {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 4px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .success {
+      background-color: #e6ffed;
+      border: 1px solid #34c759;
+      color: #22863a;
+    }
+
+    .error {
+      background-color: #ffebee;
+      border: 1px solid #ff3b30;
+      color: #c62828;
+    }
+
+    .info-section {
+      background-color: #eaf2f8;
+      border: 1px solid #aed6f1;
+      padding: 15px;
+      margin-top: 30px;
+      border-radius: 4px;
+    }
+
+    .info-section h2 {
+      margin-top: 0;
+      color: #1a5276;
+      font-size: 1.1em;
+    }
+
+    .info-section p,
+    .info-section li {
+      font-size: 0.95em;
+      color: #283747;
+    }
+
+    .info-section ol {
+      padding-left: 20px;
+    }
+
+    .warning-note {
+      font-weight: bold;
+      color: #c0392b;
+      /* Emphasize warning */
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.9em;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Google Timeline JSON to KML Converter</h1>
+
+    <label for="jsonFile">1. Upload Google Timeline JSON File:</label>
+    <input type="file" id="jsonFile" accept=".json">
+
+    <label for="startDate">2. Start Date (Optional):</label>
+    <input type="date" id="startDate">
+
+    <label for="endDate">3. End Date (Optional):</label>
+    <input type="date" id="endDate">
+
+    <button id="convertButton">Convert to KML</button>
+
+    <div id="status"></div>
+
+    <div class="info-section">
+      <h2>How to Get Your Google Timeline JSON File</h2>
+      <p>As of May 11, 2025, methods for exporting the specific Google Timeline JSON format (with `semanticSegments` and
+        `timelinePath` data) needed for this tool have become limited. The direct web export feature for this detailed
+        format has been changed or removed for many users.</p>
+
+      <p><strong>Primary Recommended Method (Android Users):</strong></p>
+      <p>The most reliable way to obtain a compatible JSON file appears to be via your Android device's system settings,
+        as direct export from the Google Maps app's main interface may no longer be available or straightforward:</p>
+      <ol>
+        <li>Navigate to your Android device's <strong>Settings</strong>.</li>
+        <li>Go to <strong>Location</strong>.</li>
+        <li>Select <strong>Location Services</strong> (or a similar entry, this may vary slightly by Android
+          version/manufacturer).</li>
+        <li>Tap on <strong>Google Location History</strong> or <strong>Timeline</strong>.</li>
+        <li>Select your Google Account (if you have multiple).</li>
+        <li>Look for and click on an option like <strong>"Export Timeline Data"</strong> or "Download a copy of your
+          data".</li>
+      </ol>
+      <p>Once completed, you should find a <code>Timeline.json</code> file (or a similarly named JSON file containing
+        your location history with "semanticSegments") in your device's storage, often in the <code>Downloads</code>
+        folder. This is the file you should try to use with this converter.</p>
+      <p><em>(Apologies to iOS users, these specific instructions are for Android. Options for iOS users to obtain this
+          specific format are currently unclear.)</em></p>
+
+      <p><strong>Regarding Google Takeout:</strong></p>
+      <p class="warning-note">Previously, Google Takeout ([takeout.google.com](https://takeout.google.com)) was an
+        alternative. However, recent user experiences (as of May 2025) suggest that Google Takeout may no longer provide
+        the Location History JSON in the detailed `semanticSegments` format that this tool requires. The files obtained
+        via Takeout might lack the necessary `timelinePath` data or have a different structure, making them
+        incompatible.</p>
+
+      <p><em><strong>Important Note:</strong> Google's interfaces and data export options can change frequently and
+          without notice. The information provided here is based on current understanding (May 11, 2025) and
+          user-reported experiences. If you encounter difficulties, the functionality of Google's export services may
+          have changed again.</em></p>
+    </div>
+  </div>
+  <footer>
+    <p>This tool processes your data locally in your browser. No data is uploaded to any server.</p>
+  </footer>
+
+  <script>
+    /**
+     * Converts Google Timeline data (from semanticSegments) to KML format.
+     * @param {object} data The parsed JSON data from Google Timeline.
+     * @param {Date|null} startDateObj The start date for filtering (inclusive).
+     * @param {Date|null} endDateObj The end date for filtering (inclusive).
+     * @returns {string} The KML data as a string.
+     */
+    function convertTimelineToKML(data, startDateObj, endDateObj) {
+      const statusP = document.getElementById('status');
+      if (!data || !data.semanticSegments || !Array.isArray(data.semanticSegments)) {
+        console.error("Invalid data format: semanticSegments not found or not an array.");
+        statusP.textContent = 'Error: Invalid JSON format. Expected "semanticSegments" array. Please check the "How to Get Your Google Timeline JSON File" section below for tips on obtaining the correct file.';
+        statusP.className = 'error';
+        return `<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Error - Invalid Data Structure</name></Document></kml>`;
+      }
+
+      const placemarks = data["semanticSegments"]
+        .filter(item => {
+          if (!item || typeof item !== 'object') return false;
+          return item.hasOwnProperty("timelinePath") && item.timelinePath && Array.isArray(item.timelinePath) && item.timelinePath.length > 0;
+        })
+        .filter(item => {
+          if (!item.startTime || !item.endTime) {
+            console.warn("Segment missing startTime or endTime:", item);
+            return false;
+          }
+          try {
+            const itemStartDate = new Date(item.startTime);
+            const itemEndDate = new Date(item.endTime);
+
+            if (isNaN(itemStartDate.getTime()) || isNaN(itemEndDate.getTime())) {
+              console.warn("Segment with invalid startTime or endTime:", item);
+              return false;
+            }
+
+            let include = true;
+            if (startDateObj && itemStartDate < startDateObj) {
+              include = false;
+            }
+            if (endDateObj && itemEndDate > endDateObj) {
+              include = false;
+            }
+            return include;
+          } catch (e) {
+            console.warn("Error parsing date for segment:", item, e);
+            return false;
+          }
+        })
+        .map((item, index) => {
+          const {timelinePath} = item;
+          const coordinates = timelinePath
+            .filter(pathSegment => pathSegment && pathSegment.point)
+            .map(({point}) => {
+              const cleanedPoint = point.toString().replaceAll("°", "").replaceAll(/[NWESnesw]/gi, "").trim();
+              const parts = cleanedPoint.split(",").map(coord => coord.trim());
+
+              if (parts.length < 2) {
+                console.warn("Invalid point format (not enough parts):", point);
+                return null;
+              }
+
+              const lat = parseFloat(parts[0]);
+              const long = parseFloat(parts[1]);
+
+              if (isNaN(lat) || isNaN(long)) {
+                console.warn("Invalid coordinates (NaN):", point, "Parsed:", lat, long);
+                return null;
+              }
+              return `${long},${lat}`; // KML is long,lat
+            })
+            .filter(coord => coord !== null)
+            .join(" ");
+
+          if (!coordinates || coordinates.trim() === "") {
+            console.warn("Segment resulted in no valid coordinates:", item);
+            return null;
+          }
+
+          let segmentName = `Segment ${index + 1}`;
+          try {
+            segmentName = `Path from ${new Date(item.startTime).toLocaleString()} to ${new Date(item.endTime).toLocaleString()}`;
+          } catch (e) { /* use default name */}
+
+          let description = `Source Index: ${index + 1}`;
+          if (item.activitySegment && item.activitySegment.activityType) {
+            description += `<br>Activity: ${item.activitySegment.activityType}`;
+          }
+          if (item.placeVisit && item.placeVisit.location && item.placeVisit.location.name) {
+            description = `Visit: ${item.placeVisit.location.name} <br>From ${new Date(item.startTime).toLocaleString()} to ${new Date(item.endTime).toLocaleString()}`;
+          }
+
+
+          return `
+                <Placemark>
+                  <name><![CDATA[${segmentName}]]></name>
+                  <description><![CDATA[${description}]]></description>
+                  <TimeSpan>
+                    <begin>${item.startTime}</begin>
+                    <end>${item.endTime}</end>
+                  </TimeSpan>
+                  <styleUrl>#lineStyle</styleUrl>
+                  <LineString>
+                    <tessellate>1</tessellate>
+                    <coordinates>
+                      ${coordinates}
+                    </coordinates>
+                  </LineString>
+                </Placemark>`;
+        })
+        .filter(placemark => placemark !== null)
+        .join("");
+
+      if (placemarks.length === 0 && data.semanticSegments.length > 0) {
+        statusP.textContent = 'No timeline paths found for the selected criteria or period. KML generated but may be empty.';
+        statusP.className = '';
+      } else if (data.semanticSegments.length === 0) {
+        statusP.textContent = 'The provided JSON file does not contain any "semanticSegments" with usable "timelinePath" data. Please verify the file or check the instructions below on obtaining a compatible file.';
+        statusP.className = 'error';
+      }
+
+
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+  <Document>
+    <name>Location History Timeline</name>
+    <Style id="lineStyle">
+      <LineStyle>
+        <color>ffd18802</color> <width>4</width>
+      </LineStyle>
+    </Style>
+    ${placemarks}
+  </Document>
+</kml>`;
+    }
+
+    document.getElementById('convertButton').addEventListener('click', () => {
+      const fileInput = document.getElementById('jsonFile');
+      const startDateInput = document.getElementById('startDate').value;
+      const endDateInput = document.getElementById('endDate').value;
+      const statusP = document.getElementById('status');
+
+      statusP.textContent = '';
+      statusP.className = '';
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        statusP.textContent = 'Please select a JSON file.';
+        statusP.className = 'error';
+        return;
+      }
+
+      const file = fileInput.files[0];
+      if (file.type && file.type !== "application/json") {
+        console.warn(`Warning: File type is ${file.type}, not explicitly application/json. Proceeding.`);
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        let jsonData;
+        try {
+          jsonData = JSON.parse(event.target.result);
+        } catch (e) {
+          statusP.textContent = `Error parsing JSON: ${e.message}. Please ensure the file is a valid JSON.`;
+          statusP.className = 'error';
+          return;
+        }
+
+        let parsedStartDate = null;
+        if (startDateInput) {
+          const [year, month, day] = startDateInput.split('-').map(Number);
+          parsedStartDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+        }
+
+        let parsedEndDate = null;
+        if (endDateInput) {
+          const [year, month, day] = endDateInput.split('-').map(Number);
+          parsedEndDate = new Date(year, month - 1, day, 23, 59, 59, 999);
+        }
+
+        if (parsedStartDate && parsedEndDate && parsedStartDate > parsedEndDate) {
+          statusP.textContent = 'Start date cannot be after end date.';
+          statusP.className = 'error';
+          return;
+        }
+
+        statusP.textContent = 'Processing...';
+        statusP.className = '';
+
+        setTimeout(() => {
+          try {
+            const kmlOutput = convertTimelineToKML(jsonData, parsedStartDate, parsedEndDate);
+
+            if (kmlOutput.includes("<name>Error - Invalid Data Structure</name>")) {
+              return;
+            }
+
+            const hasPlacemarks = kmlOutput.includes("<Placemark>");
+            const hasSegmentsInJson = jsonData && jsonData.semanticSegments && jsonData.semanticSegments.length > 0;
+
+            if (!hasSegmentsInJson && (!jsonData || !jsonData.semanticSegments)) {
+              // Message already set by convertTimelineToKML
+            } else if (hasSegmentsInJson && !hasPlacemarks) {
+              // Message already set by convertTimelineToKML
+              downloadKML(kmlOutput, `timeline_export_empty_${Date.now()}.kml`);
+            } else if (hasPlacemarks) {
+              statusP.textContent = 'KML file generated successfully!';
+              statusP.className = 'success';
+              downloadKML(kmlOutput, `timeline_export_${Date.now()}.kml`);
+            } else {
+              // Fallback for unexpected empty KML without specific error state from convertTimelineToKML
+              statusP.textContent = 'No data to convert or an unexpected issue occurred. Ensure your JSON contains usable timeline paths.';
+              statusP.className = 'error';
+            }
+
+          } catch (e) {
+            statusP.textContent = `Error during KML conversion: ${e.message}`;
+            statusP.className = 'error';
+            console.error("KML Conversion Error:", e);
+          }
+        }, 10);
+      };
+
+      reader.onerror = () => {
+        statusP.textContent = 'Error reading file.';
+        statusP.className = 'error';
+      };
+
+      reader.readAsText(file);
+    });
+
+    function downloadKML(kmlString, filename) {
+      const blob = new Blob([kmlString], {type: 'application/vnd.google-earth.kml+xml;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+
+</html>
